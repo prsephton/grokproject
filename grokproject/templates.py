@@ -5,8 +5,8 @@ from six.moves.urllib.parse import urljoin           # @UnresolvedImport
 from six.moves.urllib.error import HTTPError         # @UnresolvedImport
 from six.moves.urllib.request import urlopen         # @UnresolvedImport
 import xml.sax.saxutils
-from paste.script import templates
-from paste.script.templates import NoDefault
+from paste.script import templates                   # @UnresolvedImport
+from paste.script.templates import NoDefault         # @UnresolvedImport
 from grokproject.utils import run_buildout
 from grokproject.utils import ask_var
 from grokproject.utils import get_boolean_value_for_option
@@ -21,7 +21,7 @@ from grokproject.utils import exist_buildout_default_file
 # base = base[base.find('url = ')+6:base.find('.git')]
 # base = base.replace('github.com', 'raw.githubusercontent.com')
 
-base = 'https://raw.githubusercontent.com/zopefoundation/grokproject'
+base = 'https://raw.githubusercontent.com/prsephton/grokproject'
 GROK_RELEASE_URL = base + '/master/versions/'
 
 class GrokProject(templates.Template):
@@ -143,7 +143,8 @@ class GrokProject(templates.Template):
             print("Error: cannot download required %s" % url)
             print("Server may be down.  Please try again later.")
             sys.exit(1)
-        return contents
+        print(f"{url} = [{contents.decode('ISO-8859-1')}]")
+        return contents.decode("ISO-8859-1")
 
     def post(self, command, output_dir, vars):
         if not vars['run_buildout']:
