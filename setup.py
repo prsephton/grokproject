@@ -36,7 +36,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['PasteScript==1.7.5'],
+    install_requires=['PasteScript==3.3.0'],
     test_suite='tests.test_suite',
     entry_points={
         'console_scripts': ['grokproject = grokproject:main'],
