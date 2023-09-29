@@ -1,7 +1,7 @@
 from __future__ import print_function
 import sys
-import pkg_resources
-from paste.script import command
+import pkg_resources                    # @UnresolvedImport
+from paste.script import command        # @UnresolvedImport
 import optparse
 import re
 from grokproject import GrokProject
@@ -11,11 +11,11 @@ project_name_re=re.compile('[A-z_][A-z0-9_]*')
 def main(vars=GrokProject.vars, template_name='grok'):
     usage = "usage: %prog [options] PROJECT"
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option(
-        '--svn-repository', dest="repos", default=None, help=(
-        "Import project to given repository location (this "
-        "will also create the standard trunk/ tags/ branches/ "
-        "hierarchy)."))
+    # parser.add_option(
+    #     '--svn-repository', dest="repos", default=None, help=(
+    #     "Import project to given repository location (this "
+    #     "will also create the standard trunk/ tags/ branches/ "
+    #     "hierarchy)."))
     parser.add_option(
         '--version-url', dest="version_url", default=None, help=(
         "Specify the URL to a buildout file defining package versions. "
@@ -53,8 +53,8 @@ def main(vars=GrokProject.vars, template_name='grok'):
     runner = cmd('create')
 
     option_args = []
-    if options.repos is not None:
-        option_args.extend(['--svn-repository', options.repos])
+    # if options.repos is not None:
+    #     option_args.extend(['--svn-repository', options.repos])
     if not options.verbose:
         option_args.append('-q')
 
@@ -88,7 +88,7 @@ def main(vars=GrokProject.vars, template_name='grok'):
         print("Please choose a different project name.")
         sys.exit(1)
 
-    # Create the project.
+    # Create the project.   
     exit_code = runner.run(option_args + ['-t', template_name, project] + extra_args)
     sys.exit(exit_code)
 
