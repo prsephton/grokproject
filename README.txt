@@ -1,3 +1,7 @@
+.. caution:: 
+
+    This repository has been archived. If you want to work on it please open a ticket in https://github.com/zopefoundation/meta/issues requesting its unarchival.
+
 grokproject provides an easy way to get started with a `Grok
 <http://pypi.python.org/pypi/grok>`_ web application.  Simply
 install ``grokproject``::
