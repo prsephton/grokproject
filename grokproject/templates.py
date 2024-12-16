@@ -1,12 +1,10 @@
-from __future__ import print_function
 import sys
 import os
-from six.moves.urllib.parse import urljoin           # @UnresolvedImport
-from six.moves.urllib.error import HTTPError         # @UnresolvedImport
-from six.moves.urllib.request import urlopen         # @UnresolvedImport
+from urllib.error import HTTPError
+from urllib.request import urlopen
 import xml.sax.saxutils
-from paste.script import templates                   # @UnresolvedImport
-from paste.script.templates import NoDefault         # @UnresolvedImport
+from paste.script import templates            # @UnresolvedImport
+from paste.script.templates import NoDefault  # @UnresolvedImport
 from grokproject.utils import run_buildout
 from grokproject.utils import ask_var
 from grokproject.utils import get_boolean_value_for_option
@@ -16,13 +14,8 @@ from grokproject.utils import exist_buildout_default_file
 
 #  Retrieve the currently checked out git source from the git configuration
 # and figure out from that from whence we can download our versions.cfg
-# base = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
-# base = open(os.path.join(base, '.git', 'config')).read()
-# base = base[base.find('url = ')+6:base.find('.git')]
-# base = base.replace('github.com', 'raw.githubusercontent.com')
 
-base = 'https://raw.githubusercontent.com/prsephton/grokproject'
-GROK_RELEASE_URL = base + '/master/versions/'
+GROK_RELEASE_URL = 'https://raw.githubusercontent.com/zopefoundation/groktoolkit/master/grok-versions.cfg'
 
 class GrokProject(templates.Template):
     _template_dir = 'template'
@@ -57,72 +50,65 @@ class GrokProject(templates.Template):
             default='', should_ask=False),
         ]
 
-    def check_vars(self, vars, cmd):
-        if vars['package'] in ('grok', 'zope'):
+    def check_vars(self, tvars, cmd):
+        if tvars['package'] in ('grok', 'zope'):
             print("Error: The chosen project name results in an invalid " \
-                              "package name: %s." % vars['package'])
+                              "package name: %s." % tvars['package'])
             print("Please choose a different project name.")
             sys.exit(1)
 
-        explicit_eggs_dir = vars.get('eggs_dir')
+        explicit_eggs_dir = tvars.get('eggs_dir')
 
         skipped_vars = {}
         for var in list(self.vars):
             if not var.should_ask:
-                skipped_vars[var.name] = var.getter(vars, var)
+                skipped_vars[var.name] = var.getter(tvars, var)
                 self.vars.remove(var)
 
-        vars = super(GrokProject, self).check_vars(vars, cmd)
+        tvars = super(GrokProject, self).check_vars(tvars, cmd)
         for name in skipped_vars:
-            vars[name] = skipped_vars[name]
+            tvars[name] = skipped_vars[name]
 
-        vars['passwd'] = get_ssha_encoded_string(vars['passwd'])
+        tvars['passwd'] = get_ssha_encoded_string(tvars['passwd'])
         for var_name in ['user', 'passwd']:
             # Escape values that go in site.zcml.
-            if isinstance(vars[var_name], str):
-                vars[var_name] = xml.sax.saxutils.quoteattr(vars[var_name])
+            if isinstance(tvars[var_name], str):
+                tvars[var_name] = xml.sax.saxutils.quoteattr(tvars[var_name])
             else:
-                vars[var_name] = xml.sax.saxutils.quoteattr(vars[var_name].decode())
-        vars['app_class_name'] = vars['project'].capitalize()
-        vars['project_lowercase'] = vars['project'].lower()
+                tvars[var_name] = xml.sax.saxutils.quoteattr(tvars[var_name].decode())
+        tvars['app_class_name'] = tvars['project'].capitalize()
+        tvars['project_lowercase'] = tvars['project'].lower()
 
         # Handling the version.cfg file.
-        version_url = vars.get('version_url')
+        version_url = tvars.get('version_url')
         find_links_url = ''
         if version_url is None:
-            print("Determining current grok version...")
-            # If no version URL was specified, we look up the current
-            # version first and construct a URL.
-            current_info_url = urljoin(GROK_RELEASE_URL, 'current')
-            version = self.download(current_info_url).strip().replace(
-                    'grok-', '').replace('.cfg', '')
-            version_url = GROK_RELEASE_URL + version + '/versions.cfg'
-            find_links_url = GROK_RELEASE_URL + version + '/eggs'
+            version_url = GROK_RELEASE_URL
 
-        vars['find_links_url'] = find_links_url
-        vars['version_info_url'] = version_url
+        tvars['find_links_url'] = find_links_url
+        tvars['version_info_url'] = version_url
 
         buildout_default = exist_buildout_default_file()
         if explicit_eggs_dir:
             # Put explicit_eggs_dir in the vars; used by the post command.
-            vars['explicit_eggs_dir'] = explicit_eggs_dir
-            vars['eggs_dir'] = (
+            tvars['explicit_eggs_dir'] = explicit_eggs_dir
+            tvars['eggs_dir'] = (
                 '# Warning: when you share this buildout.cfg with friends\n'
                 '# please remove the eggs-directory line as it is hardcoded.\n'
                 'eggs-directory = %s') % explicit_eggs_dir
         elif buildout_default:
-            vars['eggs-dir'] = ''
+            tvars['eggs-dir'] = ''
         else:
             create_buildout_default_file()
 
-        vars['package_directory'] = os.path.abspath(os.path.join(
-                os.getcwd(), vars['project']))
+        tvars['package_directory'] = os.path.abspath(os.path.join(
+                os.getcwd(), tvars['project']))
 
-        include_site_packages = vars.get('include_site_packages')
+        include_site_packages = tvars.get('include_site_packages')
         if include_site_packages is None:
-            vars['include_site_packages'] = 'false'
+            tvars['include_site_packages'] = 'false'
 
-        return vars
+        return tvars
 
     def download(self, url):
         """Downloads a file and returns the contents.
@@ -138,7 +124,7 @@ class GrokProject(templates.Template):
             print("Error: cannot download required %s" % url)
             print("Maybe you specified a non-existing version?")
             sys.exit(1)
-        except IOError as e:
+        except IOError as _e:
             # Some serious problem: no connect to server...
             print("Error: cannot download required %s" % url)
             print("Server may be down.  Please try again later.")
@@ -146,10 +132,10 @@ class GrokProject(templates.Template):
         print(f"{url} = [{contents.decode('ISO-8859-1')}]")
         return contents.decode("ISO-8859-1")
 
-    def post(self, command, output_dir, vars):
-        if not vars['run_buildout']:
+    def post(self, command, _output_dir, tvars):
+        if not tvars['run_buildout']:
             return
         original_dir = os.getcwd()
-        os.chdir(vars['project'])
-        run_buildout(command.verbose, vars['use_distribute'])
+        os.chdir(tvars['project'])
+        run_buildout(command.verbose, tvars['use_distribute'])
         os.chdir(original_dir)

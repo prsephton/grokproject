@@ -25,7 +25,7 @@ long_description = (
 
 setup(
     name='grokproject',
-    version='2.14-dev',
+    version='2.2-dev',
     author='Grok Team',
     author_email='grok-dev@zope.org',
     url='http://grok.zope.org',
@@ -36,7 +36,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['PasteScript==3.3.0'],
+    install_requires=['PasteScript==3.6.0'],
     test_suite='tests.test_suite',
     entry_points={
         'console_scripts': ['grokproject = grokproject:main'],

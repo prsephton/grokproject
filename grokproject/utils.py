@@ -4,7 +4,7 @@ import os
 import sys
 from base64 import urlsafe_b64encode
 
-from paste.script.templates import var
+from paste.script.templates import var  # @UnresolvedImport
 
 try:
     from hashlib import sha1
@@ -25,7 +25,7 @@ class ask_var(var):
         self.should_ask = should_ask
         self.getter = getter
         if self.getter is None:
-            self.getter = lambda x, y: self.default
+            self.getter = lambda _x, _y: self.default
 
 def create_buildout_default_file():
     default_dir = os.path.join(HOME, '.buildout')
@@ -60,8 +60,8 @@ def get_ssha_encoded_string(password):
     _hash.update(salt)
     return b'{SSHA}' + urlsafe_b64encode(_hash.digest() + salt)
 
-def get_boolean_value_for_option(vars, option):
-    value = vars.get(option.name)
+def get_boolean_value_for_option(tvars, option):
+    value = tvars.get(option.name)
     if value is not None:
         if isinstance(option.default, bool):
             want_boolean = True

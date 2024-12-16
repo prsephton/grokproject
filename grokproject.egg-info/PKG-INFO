@@ -1,0 +1,677 @@
+Metadata-Version: 2.1
+Name: grokproject
+Version: 2.2.dev0
+Summary: Script that creates a Grok project directory, installs Grok, the Grok Toolkit and the Zope Toolkit and sets up a complete skeleton for a new Grok web application.
+Home-page: http://grok.zope.org
+Download-URL: https://pypi.python.org/pypi/grokproject
+Author: Grok Team
+Author-email: grok-dev@zope.org
+License: ZPL
+License-File: LICENSE.txt
+
+===========
+Grokproject
+===========
+
+Script that creates a Grok project directory, installs Grok, the Grok Toolkit and the Zope Toolkit and sets up a complete skeleton for a new Grok web application.
+
+.. contents::
+
+Description
+===========
+
+.. caution:: 
+
+    This repository has been archived. If you want to work on it please open a ticket in https://github.com/zopefoundation/meta/issues requesting its unarchival.
+
+grokproject provides an easy way to get started with a `Grok
+<http://pypi.python.org/pypi/grok>`_ web application.  Simply
+install ``grokproject``::
+
+  $ easy_install grokproject
+
+If you have an old version of grokproject installed then you can
+upgrade doing::
+
+  $ easy_install -U grokproject
+
+Afterwards you can run the ``grokproject`` script with the name of the
+project you'd like to create as an argument::
+
+  $ grokproject MammothHerd
+  ... many lines of output here
+
+This will not only create a project area for you to work in, it will
+also download and install Grok and its dependencies.
+
+After the project area has been created successfully, you will find an empty
+Python package "skeleton" in the ``src`` directory in which you can place the
+code for your web application.
+
+To start the application server, execute::
+
+  $ cd MammothHerd
+  $ bin/paster serve parts/etc/deploy.ini
+
+Start/stop it in daemon mode::
+
+  $ bin/daemon start/stop
+
+There is also an Ajax enabled debugger (point your browser to
+http://localhost:8080/@@login.html when using this)::
+
+  $ bin/paster serve parts/etc/debug.ini
+
+To start the interactive debugger prompt::
+
+  $ bin/interactive_debugger
+
+To run an ad-hoc Python script against a full setup application::
+
+  $ bin/interactive_debugger [name_of_python_script].py
+
+Python scripts run this way, will have access to a ``root``, ``debugger``, and
+an ``app`` object avaible for "interacting" with the application environment.
+
+For those who know paster: ``grokproject`` is just a wrapper around a
+paster template.  So instead of running the ``grokproject`` command,
+you can also run::
+
+  $ paster create -t grok MammotHerd
+
+All configuration files used for running Grok can be found in the
+``parts/etc/`` directory of your project. These configuration files are
+generated automatically from the templates in ``etc/`` on each ``buildout``
+run. To modify the configuration files edit the approriate templates in
+``etc/`` and rerun ``buildout`` afterwards::
+
+  $ bin/buildout
+
+This will rebuild the files in ``parts/etc/``.
+
+Changes
+=======
+
+2.14 (unreleased)
+-----------------
+
+- Started port to Python 3
+- Bumped versions and versions.cfg
+- Adapted code to use Python 3 syntax
+
+
+2.13 (2019-02-16)
+-----------------
+
+- Update versions.cfg
+- Pin version of PasteScript in setup.py 
+
+2.12 (2018-01-22)
+-----------------
+
+-  Use latest buildout and adapt tests:
+
+    * Templates refer to zopefoundation/grokproject base again.
+    * Removed unused "use-site-packages" option
+    * Changed tests to be compatible with the new buildout version
+    * Update versions.cfg
+    * Use buildout version 2.11.0
+    * Adapt tests as buildout output is no longer deterministic.
+
+2.11 (2017-10-27)
+-----------------
+
+- Corrected an error whereby a change in the way we import urllib in
+  templates.py resulted in an unexpected read() result.
+
+2.10 (2017-10-24)
+-----------------
+
+- Fixed improper references to old svn based versions directory for latest
+  Grok version information.
+- Some minor fixes to test procedures to make tests (and Travis-CI) work again.
+- Some Python-3 prep work.
+
+
+2.9 (2013-02-14)
+----------------
+
+- Fix the brown-paper-bag 2.8 release where not all files necessary for the
+  source distribution were included.
+
+2.8 (2013-02-13)
+----------------
+
+- Update bootstrap.py (for both the grokproject buildout *and* the project
+  template) to use zc.buildout <2.0dev.
+
+2.7 (2012-05-02)
+----------------
+
+- Include grokcore.chameleon. Have the generated index view template be
+  a chameleon based template.
+
+2.6 (2011-05-26)
+----------------
+
+- There was an inconsistency where the various logfiles we placed. Fixed the
+  situation by using the intended "{buildout}/var/log" location throughout.
+
+- Remove the ``log`` and ``data`` part stubs that were left for backwards
+  compatibility. Deprecation period is over. NOTE: if you are to update an
+  existing project by replacing your ``buildout.cfg`` with that of a newly
+  generated project, please make sure there is no important data ``data`` and
+  ``log`` subdirectories left!
+
+2.5 (2011-02-02)
+----------------
+
+- Better checks and tests for faulty project names.
+
+2.4 (2011-01-20)
+----------------
+
+- z3c.testsetup has been removed in favor of manual registration of tests.
+  Tests have been moved to 'tests' subdirectory.
+  See tests.py for more information on how to register tests.
+
+- The 'static' directory is no longer grokked and registered as a
+  DirectoryResource. It has been superseded by `fanstatic`_.
+
+  In order to update your current grok project to the most recent grokproject,
+  you need to register a fanstatic Library for the `static` directory.
+
+  Include the following code in ``resource.py``::
+
+    from fanstatic import Library
+    library = Library('$name_of_your_project', 'static')
+
+  in the setup.py of your project, add the following entry point::
+
+    'fanstatic.libraries': [
+        '$name_of_your_project = $name_of_your_project.resource:library',
+    ]
+
+  Also add `zope.fanstatic` and `fanstatic` to `install_requires` in your
+  setup.py. If you are using z3c.autoinclude in your configure.zcml, the
+  registrations of zope.fanstatic will be picked up automatically. If you
+  do not use z3c.autoinclude, include zope.fanstatic in your configure.zcml.
+
+- Split up zope.conf into zope.debug.conf and zope.deploy.conf, in order to
+  pick these up from the paster configs debug.ini and deploy.ini.
+
+  In debug/devmode, grok picks up changes in page templates and fanstatic
+  recalculates resources URLs.
+
+  In non-dev/deploy mode grok caches page templates and fanstatic caches
+  resource URLs.
+
+  The goal is to quickly see the difference between debug.ini and deploy.ini
+  without having to mess around in parts/etc.
+
+.. _`fanstatic`: http://fanstatic.org
+
+2.3 (2011-01-10)
+----------------
+
+- Use 'extensions +=' instead of 'extensions =' to be able to define extensions
+  in other cfg files we extend.
+
+- Added include_site_packages, install_requires, and additional_grants
+  variables in the template for use in dolmenproject.
+  Use vars and template_main parameters in main function so it can be reused
+  in dolmenproject.
+
+2.2.1 (2011-01-05)
+------------------
+
+- The accesslogging filter in deploy.ini was lost and refound.
+
+2.2 (2010-11-26)
+----------------
+
+- `unzip=true` default behavior in buildout.cfg.
+
+- Added 'daemon' part to the newly created buildout.cfg.
+
+- Work around '-S' bug in virtualenv.
+  https://bugs.launchpad.net/virtualenv/+bug/572545
+
+2.1 (2010-10-26)
+----------------
+
+- **NOTE: As a result of these changes, ``grokproject`` will no longer
+  support building projects based on Grok versions earlier than 1.2!**
+
+- Removed the ``--grokversion`` and ``--grok-release-url`` commandline
+  options, in favor of the ``-version-url`` option. This URL should point to a
+  buildout ``*.cfg`` file containing version "pins" for all the packages
+  involved. The default URL is still looked up by way of
+  http://grok.zope.org/releaseinfo/current.
+
+- The newly created project will use the test layer and test browser from
+  ``zope.app.wsgi.testlayer``.
+
+- Delegate bootstrapping a newly created project to the project's
+  ``bootstrap.py`` and the project's ``bin/buildout``. This isolates the
+  bootstrapping from grokproject itself and prevents potential zc.buildout
+  version conflicts.
+
+- Update to use z3c.recipe.scripts instead of zc.recipe.egg as part of the
+  upgrade to zc.buildout-1.5.2.
+
+2.0.1 (2010-05-30)
+------------------
+
+- Make sure the otherwise empty log and extends-cache directories exist.
+
+2.0 (2010-05-30)
+----------------
+
+* Use a pipeline for setting up the application.
+
+* Add logger ``grok`` in ``debug.ini`` and ``deploy.ini``
+  templates. This logger logs warning messages emitted by more recent
+  versions of grokcore.view template registry (and has no effect
+  with older grok versions).
+
+  By default warning messages are displayed in ``debug.ini`` and
+  disabled in ``deploy.ini``.
+
+  To change settings, edit section ``[logger_grok]`` in
+  ``etc/debug.ini.in`` and ``etc/deploy.ini.in`` respectively and
+  rerun buildout afterwards.
+
+* Use a new "version information" layout on http://grok.zope.org/releaseinfo.
+
+  More specifically, the "bundlemaker" or "eggbasket" feature is no longer
+  used. Instead, grokproject expexts to find a
+  http://grok.zope.org/releaseinfo/[y.x]/versions.cfg file and a
+  http://grok.zope.org/releaseinfo/[y.x]/eggs directory containing
+  distributions for all the dependencies of grok.
+
+  This "eggs" directory is used by way of the ``find-links`` directive in the
+  ``buildout.cfg`` of newly created projects.
+
+  The ``versions.cfg`` file extends the groktoolkit files that in turn extend
+  from the zopetoolkit cfg files. The newly created project will have an
+  ``extends-cache`` directive set, in order to support "off-line" building (as
+  long as no new packages are required for building).
+
+  **NOTE: As a result of these structural changes, ``grokproject`` will no
+  longer support building projects based on Grok versions earlier than 1.1.1
+  (or earlier than 1.0.2, for the 1.0-line of Grok releases).**
+
+* Remove the interactive debugger entry point in favor of a buildout part
+  that generates a similar commandline tool for the newly created project.
+
+* Use the zpassword functionality for the bin/zpasswd tool.
+
+* No longer build the zdaemon ctl.
+
+* Projects created will use the #main and #debug entry points now defined
+  in grokcore.startup.
+
+* The application specific version pins are now in Grok's versions cfg.
+
+* Remove '--zopectl' option. Paster setups are now the only supported
+  method to create new projects.
+  Fix bug https://bugs.launchpad.net/grok/+bug/524262
+
+1.0.3 (2010-02-21)
+------------------
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/524000
+  Firsttime-user problem on win32: grokproject didn't work if no
+  .buildout/default.cfg existed and user had no pywin32 already installed.
+
+* Pin zope.app.container 3.8.1 and zope.app.folder 3.5.1 for project
+  created with Grok 1.1a2 KGS (those packages were not pinned in the released
+  versions.cfg).
+
+* For Python 2.5 and 2.6, use hashlib module instead of the deprecated
+  sha module in Python 2.6.
+
+* Use bugfixed grokui.admin 0.4.1.
+
+1.0.2 (2010-02-14)
+------------------
+
+* Added license file.
+
+1.0.1 (2010-01-24)
+------------------
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/487561 Granted
+  ``zope.View`` and ``zope.app.dublincore.view`` permissions for all
+  users (also authenticated ones) in site.zcml and ftesting.zcml
+  templates.
+
+* Pinned down zc.zope3recipes for zopectl-driven installs. The more
+  recent versions of zc.zope3recipes require zc.recipe.egg >= 1.2.0
+  which we currently do not support. As a result zctl-builds could
+  fail due to unmet version constraints.
+
+
+1.0 (2009-10-07)
+----------------
+
+* The ``debug.ini`` file now by default configures the Unuathorized
+  exception to not to be reraised. This will make sure Zope's authentication
+  mechanism keep working when using the ``z3c.evalexception`` middleware.
+
+
+1.0b1 (2009-09-17)
+------------------
+
+* The var/ directory is now used for var/filestorage, var/blobstorage and
+  var/log instead of storing all that in the parts/ directory.  This matches
+  expectations of most users: parts/ can be rebuild, var/ must be backed up.
+
+* Added blob-storage in paster template's `zope.conf.in`. Blob-storage
+  is enabled by default.
+
+* Removed ``find-links`` from `buildout.cfg`.
+
+* Added two packages to the pinned versions in generated projects:
+  z3c.recipe.dev = 0.5.3
+  zc.lockfile = 1.0.0
+
+* Using the just released z3c.recipe.eggbasket 0.4.3 in the generated
+  projects.
+
+* Increased z3c.recipe.i18n version to use: 0.5.3 does not emit any
+  warnings any more when being installed.
+
+* Assert that project names are valid python identifiers
+  https://bugs.launchpad.net/bugs/223560
+  https://bugs.launchpad.net/bugs/373592
+
+* Generate the site.zcml containing the new default permission for grok.
+  grok.View is now the default view instead of zope.Public.
+
+  https://bugs.launchpad.net/bugs/387332
+
+
+1.0a4 (2009-04-17)
+------------------
+
+* Fixed wrong site-definition path in generated zope.conf.
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/358719
+  Backslashes in Windows paths are now quoted in Python expressions in
+  configuration .ini files. Patches, testing and solutions from Ben
+  Dadsetan and Roger Erens.
+
+* Add filter to include only eggs in generated versions.cfg that are
+  not already provided by a downloaded grok KGS.
+
+* Reintroduce ``find-links`` to Zope package index in generated
+  buildout.cfg to avoid problems with z3c.widget and other packages
+  needing packages only hosted on Zope.
+
+* Removed `grokui.admin` from generated versions.cfg. It should be
+  pinned down by Groks versions.cfg.
+
+
+1.0a3 (2009-04-03)
+------------------
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/315223
+  The eggs-directory path that we put in ~/.buildout/default.cfg is
+  now a shortened version on Windows (8.3 DOS style).
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/160196 The initial
+  password is now stored SHA1 encoded.
+
+* Make the `zope.app.server.zpasswd` utility available as a
+  commandline tool in bin/.
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/325299 The config files
+  in paster-based grok projects are now generated by ``zc.buildout``
+  in the new location ``parts/etc/`` and can be adjusted to local
+  environments. Rerunning ``bin/buildout`` now rebuilds the
+  configuration files in ``parts/etc/`` from the templates that can be
+  found in ``etc/``.
+
+  To start paster you now have to do::
+
+    $ bin/paster serve parts/etc/deploy.ini
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/315214 by supporting
+  faster test runs. See README-shorttests.txt for details.
+
+* Pinned all package versions in the generated versions.cfg to the
+  latest released ones.  Especially pinned z3c.recipe.eggbasket to
+  the most recent one, 0.4.1.
+
+* Integrated with grokcore.startup
+  Removed ``startup.py`` from the paster template
+
+* Paster: you need to first access http://localhost:8080/@@login.html
+  when running the debug.ini profile
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/332173
+  add middleware to support access logging
+
+1.0a2 (2009-01-12)
+------------------
+
+* Add option ``--grokversion`` which installs the requested version of
+  Grok with the created project. Examples::
+
+    grokproject --grokversion=0.14.1 Sample
+
+  or::
+
+    paster create -t grok Sample grokversion=0.14.1
+
+* Add option ``--version`` to show grokproject version and stay
+  compatible with most command-line tools.
+
+* Fix bug https://bugs.launchpad.net/grok/+bug/315795 paster variant
+  of grokproject now again accepts projectnames with uppercase chars.
+
+1.0a1 (2009-01-08)
+------------------
+
+* Fixed bug: using the ``--svn-repository`` option would fail with an
+  OSError.
+
+* Add another template set for paster support
+
+* Add option --zopectl to select 'zopectl' templates
+
+* Make 'paster' the default template set
+
+0.9 (2008-09-29)
+----------------
+
+* Add grokui.admin as a dependency for projects created with grokproject.
+
+* Respect the verboseness requested by the user when running the final
+  install.
+
+* Fix behaviour that produced double/triple output when `buildout`
+  was invoked several times.
+
+* grokproject now uses `z3c.recipe.i18n` instead of `lovely.recipe`
+  for generation of i18n-scripts.
+
+* At the end of the bootstrap.py of the generated project we now give
+  the user a hint that he can run bin/buildout.
+
+* Explicitly run the install of the eggbasket recipe.
+
+* Fix ftesting.zcml to not include grok package : it precludes overrides of
+  anything included by grok.
+
+0.8 (2008-07-14)
+----------------
+
+* Pinned zc.buildout and the used recipes in the generated
+  versions.cfg.
+
+* Check for download errors when getting the release info files from
+  grok.zope.org.  That way we give a meaningful error message to the
+  user.
+
+* Removed dependency on zc.buildout as we already use
+  bootstrap.py-like code to install it on the fly if it is not there
+  yet.
+
+* Removed code that was factored out into z3c.recipe.eggbasket and
+  already gets invoked by grokproject by doing a "buildout bootstrap".
+
+* Actually added the required eggbasket section to the generated
+  buildout.cfg.  Fixes https://bugs.launchpad.net/grok/+bug/242368
+
+* Catch download error when trying to get the big grok tarball.
+
+* Use a hardcoded bootstrap.py instead of referring to it via an
+  external or downloading the current trunk revision upon each
+  grokproject run (those options are potentially dangerous).
+
+  Also added a line at the end of bootstrap.py to install the
+  eggbasket section.
+
+* Added a testbrowser test / functional test to the template.
+
+* Added a dependency on z3c.testsetup for created projects.
+
+* Factor out functions is_grok_installed and install_grok.
+
+* When grok is not installed yet, download a tar ball with all eggs
+  needed by Grok and install those in the shared eggs directory.
+
+* If the user has a ~/.buildout/default.cfg nothing is added to the
+  created buildout.cfg. If there is no default.cfg one is created
+  with a line specifying the eggs-directory to ~/.buildout/eggs. If
+  the user specified --eggs-dir/eggs_dir on the command line that
+  will be added to buildout.cfg.
+
+* When there is no .buildout/default.cfg file, create it.  Only put
+  eggs-directory in the created buildout.cfg file when the user does
+  not have it in default.cfg yet.
+
+* Do not ask for eggs dir when we have a default already.
+
+* Refactor grokproject/__init__.py by moving things out into main.py,
+  templates.py and utils.py, like zopeproject does.
+
+* Add README.txt file to the created static/ dir.  Biggest reason:
+  otherwise 'python setup.py sdist' simply does not add that empty
+  directory.
+
+* Added local download of the current fixed versions as versions.cfg.
+
+* Add handling for the eggs-directory option in buildout.cfg, taken
+  from zopeproject.
+
+* Added a test for grokproject itself.
+
+* Copy the run_buildout function from zopeproject and put it in
+  utils.py.  Call that in the post hook of our paste template.  In the
+  grokproject command after calling paster just quit.
+
+* Do checks before asking questions.  Define getters for some vars.
+  Move no_buildout from the command to run_buildout in the template.
+  Use version_info_url in the template instead of renaming it to
+  extends.
+
+* Remove the --newer option for bin/grokproject.  Use the 'newest'
+  option from the template instead.
+
+* Move version_info_url to the template vars without making it a real
+  question.
+
+* Rename the grokproject template to just grok.  ME GROK LIKE SHORT NAMES.
+
+* Do not add eggs-directory to the buildout.cfg, as the absolute paths
+  created make the resulting project unusable on other computers.
+
+* "bin/paster create -t grokproject" now works again.
+
+* Make sure bin/paster gets added so we can also test only our
+  paster template instead of the command.
+
+* Fix https://bugs.launchpad.net/grok/+bug/223247: grokproject
+  generates faulty ftesting.zcml. Replaced
+  zope.app.securitypolicy.zopepolicy.ZopeSecurityPolicy with
+  zope.securitypolicy.zopepolicy.ZopeSecurityPolicy in ftesting.zcml
+  template (Depends on a Grok release > 0.11.1).
+
+0.7 (2008-04-22)
+----------------
+
+* Each of the interactive questions can now be set with an commandline
+  option.
+
+* No longer ask for the name of the module that will contain the
+  grok.Application subclass.  It's 'app.py' by default now, a rename
+  is easy enough to do later on.
+
+* Fix https://bugs.launchpad.net/bugs/161947: The buildout.cfg
+  template contained the [data] section twice.
+
+* Generate ``<includeDependencies package="." />`` statement by default. If
+  new dependencies are added to ``setup.py`` that need ZCML, the ZCML
+  will be automatically loaded. (Depends on a new release of Grok with
+  z3c.autoinclude)
+
+0.6 (2007-10-10)
+----------------
+
+* Added include package directive to ftesting.zcml_tmpl to enable functional
+  testing of the generated application.
+
+* Updated template for site.zcml, no annoying warning at start.
+
+* Added buildout support for i18n (thanks to lovely.recipe.i18n).
+
+* The buildout.cfg that is created now has an extends directive that points
+  to URL of the version.cfg of the current Grok release. This URL can be
+  overridden with the --version-info-url commandline option.
+
+  See http://grok.zope.org/releaseinfo/readme.html for more information.
+
+0.5.1 (2007-07-14)
+------------------
+
+* Use the new 'application' recipe from zc.zope3recipes so that we can
+  get rid of the dead chicken [zope3] section in buildout.cfg.
+
+0.5 (2007-07-14)
+----------------
+
+* The bin/instance script has been renamed to bin/zopectl for better
+  recognizability.
+
+* grokproject is much quieter by default (by quieting down
+  PasteScript, easy_install and zc.buildout).  Use the -v option for
+  verbose mode.
+
+* Fixed https://bugs.launchpad.net/grok/+bug/119805:
+  A new project created with grokproject can't be called 'grok' or 'zope'.
+
+* By default, zc.buildout will now be told to place eggs in a
+  user-specified shared eggs directory.  Also, it will not look for
+  newer versions of existing eggs by default.
+
+0.4 (2007-07-12)
+----------------
+
+* As grok now depends on Zope 3.4 eggs, use zc.zope3recipes
+  application and instance recipes.
+
+* Don't spawn processes to bootstrap and run the buildout.  Instead,
+  try to simply import zc.buildout.  If that doesn't work, call the
+  setuptools API to install it and then simply import it.
+
+* Fixed https://bugs.launchpad.net/grok/+bug/113103:
+  Default index template was missing closing html tag.
+
+0.1 thru 0.3
+------------
+
+Initial development versions, supporting Zope 3.3.

@@ -1,0 +1,5 @@
+[console_scripts]
+grokproject = grokproject:main
+
+[paste.paster_create_template]
+grok = grokproject:GrokProject

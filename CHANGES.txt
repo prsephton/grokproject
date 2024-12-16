@@ -4,7 +4,10 @@ Changes
 2.14 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Started port to Python 3
+- Bumped versions and versions.cfg
+- Adapted code to use Python 3 syntax
+
 
 2.13 (2019-02-16)
 -----------------

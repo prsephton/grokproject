@@ -1,14 +1,13 @@
-from __future__ import print_function
 import sys
-import pkg_resources                    # @UnresolvedImport
-from paste.script import command        # @UnresolvedImport
+import pkg_resources
+from paste.script import command  # @UnresolvedImport
 import optparse
 import re
-from grokproject import GrokProject
+from grokproject.templates import GrokProject
 
 project_name_re=re.compile('[A-z_][A-z0-9_]*')
 
-def main(vars=GrokProject.vars, template_name='grok'):
+def main(gvars=GrokProject.vars, template_name='grok'):
     usage = "usage: %prog [options] PROJECT"
     parser = optparse.OptionParser(usage=usage)
     # parser.add_option(
@@ -29,7 +28,7 @@ def main(vars=GrokProject.vars, template_name='grok'):
         help="Show grokproject version.")
 
     # Options that override the interactive part of filling the templates.
-    for var in vars:
+    for var in gvars:
         option_name = '--'+var.name.replace('_', '-')
         if not parser.has_option(option_name):
             parser.add_option(
@@ -61,7 +60,7 @@ def main(vars=GrokProject.vars, template_name='grok'):
     # Process the options that override the interactive part of filling
     # the templates.
     extra_args = []
-    for var in vars:
+    for var in gvars:
         supplied_value = getattr(options, var.name)
         if supplied_value is not None:
             extra_args.append('%s=%s' % (var.name, supplied_value))
@@ -97,3 +96,6 @@ def get_version():
     if info.has_version and info.version:
         return info.version
     return 'Unknown'
+
+
+main()

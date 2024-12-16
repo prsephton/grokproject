@@ -1,2 +1,6 @@
 /.project
 /.pydevproject
+Pipfile
+__pycache__
+.venv/
+bin/
